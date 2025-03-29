@@ -1,6 +1,5 @@
 "use client";
 import React, { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
 import axios from "axios";
 import Cookies from "js-cookie";
 import { ToastContainer, toast } from "react-toastify";
@@ -23,7 +22,6 @@ interface Question {
 }
 
 export default function ExamSetQuestionsPage({ params }: { params: Promise<{ examId: number; examSetId: number }> }) {
-    const router = useRouter();
     const [examId, setExamId] = useState<number | null>(null);
     const [examSetId, setExamSetId] = useState<number | null>(null);
     const [examSetQuestions, setExamSetQuestions] = useState<Question[]>([]);
@@ -189,7 +187,7 @@ export default function ExamSetQuestionsPage({ params }: { params: Promise<{ exa
     return (
         <>
             <Header />
-            <div className="container overflow-auto">
+            <div className="">
                 <ToastContainer />
                 <h1 className="text-2xl font-bold mb-4">
                     Questions for Exam Set {examSetId} (Exam ID: {examId})
@@ -459,8 +457,8 @@ export default function ExamSetQuestionsPage({ params }: { params: Promise<{ exa
                 {loading ? (
                     <p className="text-center text-xl font-semibold">Loading...</p>
                 ) : (
-                    <div>
-                        <table className="w-full border">
+                    <div className="overflow-auto">
+                        <table className="">
                             <thead className="bg-gray-300">
                                 <tr>
                                     <th className="border px-4 py-2">Sr No</th>
@@ -494,7 +492,7 @@ export default function ExamSetQuestionsPage({ params }: { params: Promise<{ exa
                                     <th className="border px-4 py-2">Action</th>
                                 </tr>
                             </thead>
-                            <tbody>
+                            <tbody className="">
                                 {examSetQuestions && examSetQuestions.map((question, index) => (
                                     <tr key={question.id} className="hover:bg-gray-100">
                                         <td className="border px-4 py-2 break-words max-w-xs">{index + 1}</td>

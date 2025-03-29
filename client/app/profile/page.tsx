@@ -39,7 +39,7 @@ export default function ProfilePage() {
                 lastName: res.data?.lastName,
                 username: res.data?.username
             });
-            
+
             // console.log(res.data.user);
             // setUser(res.data.user)
 
@@ -66,6 +66,27 @@ export default function ProfilePage() {
     }
     return (<>
         <Header />
+        {
+            isloading ? (<div className="flex justify-center items-center">Loading...</div>) : (<div className="flex items-center justify-center min-h-screen bg-gray-100">
+                <div className="w-full max-w-md p-8 bg-white rounded shadow-md">
+                    <h1 className="text-2xl font-semibold text-center text-gray-800">Profile</h1>
+                    <br />
+                    <h1 className="text-2xl font-semibold text-center text-gray-800">{user?.firstName}</h1>
+                    <br />
+                    <h1 className="text-2xl font-semibold text-center text-gray-800">{user?.lastName}</h1>
+                    <br />
+                    <h1 className="text-2xl font-semibold text-center text-gray-800">{user?.username}</h1>
+                    <br />
+                    <button
+                        onClick={logout}
+                        className="w-full py-2 text-white bg-red-500 rounded-lg hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-1"
+                    >
+                        Logout
+                    </button>
+                </div>
+            </div>
+            )
+        }
 
         <div className="flex items-center justify-center min-h-screen bg-gray-100">
             <div className="w-full max-w-md p-8 bg-white rounded shadow-md">

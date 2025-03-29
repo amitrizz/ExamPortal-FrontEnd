@@ -1,13 +1,11 @@
 "use client";
-import React, { useEffect, useRef, useState } from "react";
-import { useRouter } from "next/navigation";
+import React, { useEffect, useState } from "react";
 import axios from "axios";
 import Cookies from "js-cookie";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import Header from "@/app/Header/page";
 import "@/app/globals.css"
-import { json } from "stream/consumers";
 
 const toggleCss = ["test__body--toggle-details-answered",
     "test__body--toggle-details-no-answered",
@@ -33,9 +31,13 @@ interface Question {
     isAnswerReviewed: boolean;
     isAnswered: boolean;
     buttonCss: string;
-    questionMarks: number
+    questionMarks: number,
 
-    [key: string]: any; // To allow other possible fields
+    result: {
+        questionMarks: number
+        userAnswer: string
+
+    }
 }
 interface Result {
     category: string
@@ -53,14 +55,13 @@ interface toggleValues {
 }
 
 export default function StartExamPage({ params }: { params: Promise<{ setId: number, viewPaper: string }> }) {
-    const router = useRouter();
+    // const router = useRouter();
     const [examSetId, setExamSetId] = useState<number | null>(null);
     const [examSetQuestions, setExamSetQuestions] = useState<Question[]>([]);
     const [loading, setLoading] = useState(false);
     const [hasAccess, setHasAccess] = useState(false);
     const [questionsCount, setQuestionsCount] = useState(0);
     const [currentQuestion, setCurrentQuestion] = useState(0);
-    const [cnt, setCnt] = useState(0);
 
     const [toggleCount, setToggleCount] = useState<toggleValues>({ answered: 0, noAnswered: 0, noVisited: 0 });
 
@@ -114,7 +115,7 @@ export default function StartExamPage({ params }: { params: Promise<{ setId: num
             console.log(sortedResult);
             const mergedQuestionResult: Question[] = sortedQuestion.map((question: Question, index: number) => ({
                 ...question,
-                ...(sortedResult[index] || {}) // Merge with corresponding result, handling cases where indices don't match
+                result: sortedResult[index] || {}
             }));
 
             console.log(mergedQuestionResult);
@@ -122,10 +123,10 @@ export default function StartExamPage({ params }: { params: Promise<{ setId: num
             let noAns = 0;
             let wAns = 0;
             for (let index = 0; index < mergedQuestionResult.length; index++) {
-                if (mergedQuestionResult[index].userAnswer?.trim() == mergedQuestionResult[index].answer?.trim()) {
+                if (mergedQuestionResult[index]?.result?.userAnswer?.trim() == mergedQuestionResult[index].answer?.trim()) {
                     ans = ans + 1;
                 }
-                else if (mergedQuestionResult[index].userAnswer?.trim() == "") {
+                else if (mergedQuestionResult[index]?.result?.userAnswer?.trim() == "") {
                     noAns = noAns + 1
                 } else {
                     wAns = wAns + 1;
@@ -137,6 +138,8 @@ export default function StartExamPage({ params }: { params: Promise<{ setId: num
 
 
         } catch (error) {
+            console.log(error);
+
             toast.error("Failed to fetch exam sets");
         } finally {
             setLoading(false);
@@ -155,13 +158,14 @@ export default function StartExamPage({ params }: { params: Promise<{ setId: num
             // toast.success("Exam Categories Fetch successfully");
             console.log(res.data);
             const data = res.data;
-            const filterData = data.map((value: any) => value.category)
+            const filterData = data.map((value: {category:string}) => value.category)
             console.log(filterData);
 
             setCategories(filterData);
             fetchExamSetQuestionsForCategory(filterData[0]);
 
         } catch (error) {
+            console.log(error);
             toast.error("Failed to update exam set");
         }
     };
@@ -174,18 +178,15 @@ export default function StartExamPage({ params }: { params: Promise<{ setId: num
 
     const getThisButtonCss = (idx: number) => {
 
-        if (examSetQuestions[idx].userAnswer?.trim() == examSetQuestions[idx].answer?.trim()) {
-            // setCnt(cnt + 1);
+        if (examSetQuestions[idx]?.result?.userAnswer?.trim() == examSetQuestions[idx].answer?.trim()) {
+
             return toggleCss[0];
         }
-        if (examSetQuestions[idx].userAnswer?.trim() == "") {
-            // const cnt = toggleCount.noVisited;
-            // setToggleCount((pre) => ({ ...pre, noVisited: cnt + 1 }));
+        if (examSetQuestions[idx]?.result?.userAnswer?.trim() == "") {
+
             return toggleCss[2];
         }
-        // const cnt = toggleCount.noAnswered;
-        // setToggleCount((pre) => ({ ...pre, noAnswered: cnt + 1 }))
-        // if(examSetQuestions[idx].userAnswer?.trim()==examSetQuestions[idx].answer?.trim()){
+
         return toggleCss[1];
         // }
     };
@@ -195,121 +196,129 @@ export default function StartExamPage({ params }: { params: Promise<{ setId: num
     return (
         <>
             <Header />
-            <div className="container">
+            <div className="container-fluid">
                 <ToastContainer />
-                {
-                    hasAccess &&
-                    <div className="test__portal">
-                        <div className="test__heading">
-                            <div className="test__heading--title">Analysis</div>
-                        </div>
-                        <div className="test__body">
-                            <div className="test__body--content">
-                                <div className="test__body--content-category flex">
-                                    {
-                                        categories && categories.map((item, index) => (
-                                            <div className="px-4 border pointer mx-4 py-2 rounded-lg bg-blue-100 border" key={index}>
-                                                <button onClick={() => fetchExamSetQuestionsForCategory(item)}>
-                                                    {item}
-                                                </button>
-                                            </div>
-                                        ))
-                                    }
-                                </div>
-                                <div className="test__body--question-details">
-                                    <div className="test__body--question-count">Question {currentQuestion + 1}</div>
-                                    <div className="test__body--question-scheme"> Question Mark : {questionsCount > 0 && examSetQuestions[currentQuestion]?.questionMarks}</div>
-                                </div>
-                                <div className="test__body--question-data">
+                {loading ? (<div className="loading__effect">
+                    <div className="loading__effect--circle">
 
-                                    {questionsCount > 0 && examSetQuestions[currentQuestion].info &&
-                                        <div className="test__body--question-info">
-
-                                            <div className="test__body--question-info-beforeImage">
-                                                {examSetQuestions[currentQuestion].beforeImage}
-                                            </div>
+                    </div>
+                    Loading...
+                </div>
+                ) : (
+                    <div>
+                        {
+                            hasAccess &&
+                            <div className="test__portal">
+                                <div className="test__heading">
+                                    <div className="test__heading--title">Analysis</div>
+                                </div>
+                                <div className="test__body">
+                                    <div className="test__body--content">
+                                        <div className="test__body--content-category flex">
                                             {
-                                                examSetQuestions[currentQuestion].imageUrl &&
-                                                <div className="test__body--question-info-image">
-                                                    <img src={examSetQuestions[currentQuestion].imageUrl} alt="" />
+                                                categories && categories.map((item, index) => (
+                                                    <div className="px-4 border pointer mx-4 py-2 rounded-lg bg-blue-100 border" key={index}>
+                                                        <button onClick={() => fetchExamSetQuestionsForCategory(item)}>
+                                                            {item}
+                                                        </button>
+                                                    </div>
+                                                ))
+                                            }
+                                        </div>
+                                        <div className="test__body--question-details">
+                                            <div className="test__body--question-count">Question {currentQuestion + 1}</div>
+                                            <div className="test__body--question-scheme"> Question Mark : {questionsCount > 0 && examSetQuestions[currentQuestion]?.result?.questionMarks}</div>
+                                        </div>
+                                        <div className="test__body--question-data">
+
+                                            {questionsCount > 0 && examSetQuestions[currentQuestion].info &&
+                                                <div className="test__body--question-info">
+
+                                                    <div className="test__body--question-info-beforeImage">
+                                                        {examSetQuestions[currentQuestion].beforeImage}
+                                                    </div>
+                                                    {
+                                                        examSetQuestions[currentQuestion].imageUrl &&
+                                                        <div className="test__body--question-info-image">
+                                                            <img src={examSetQuestions[currentQuestion].imageUrl} alt="" />
+                                                        </div>
+                                                    }
+
+                                                    <div className="test__body--question-info-afterImage">
+                                                        {examSetQuestions[currentQuestion].afterImage}
+                                                    </div>
+
                                                 </div>
                                             }
 
-                                            <div className="test__body--question-info-afterImage">
-                                                {examSetQuestions[currentQuestion].afterImage}
+                                            <div className="test__body--question">
+                                                <div className="test__body--question-name"> {questionsCount > 0 && examSetQuestions[currentQuestion].question}</div>
+                                                <ol>
+                                                    {/* {examSetQuestions[currentQuestion]?.userAnswer} */}
+                                                    {examSetQuestions[currentQuestion]?.options.map((option, index) => (
+                                                        <li key={index}>
+
+                                                            {examSetQuestions[currentQuestion]?.answer?.trim() === option?.trim() ? (
+                                                                <span className="bg-green-100 border-2 border-green-500 text-green-800 font-semibold px-2 py-1 rounded-md shadow-sm">
+                                                                    {index + 1}) {option}
+                                                                </span>
+                                                            ) : (
+                                                                <span className="text-gray-700 px-2 py-1 hover:bg-gray-50 rounded-md transition-colors">
+                                                                    {index + 1}) {option}
+                                                                </span>
+                                                            )}
+
+                                                            {examSetQuestions[currentQuestion]?.result?.userAnswer?.trim() === examSetQuestions[currentQuestion]?.answer?.trim() && examSetQuestions[currentQuestion]?.result?.userAnswer?.trim() === option?.trim() &&
+                                                                <span>
+                                                                    ✅
+                                                                </span>}
+
+
+                                                            {examSetQuestions[currentQuestion]?.result?.userAnswer?.trim() !== examSetQuestions[currentQuestion]?.answer?.trim() && examSetQuestions[currentQuestion]?.result?.userAnswer?.trim() === option?.trim() &&
+                                                                <span>
+                                                                    ❌
+                                                                </span>}
+
+
+                                                        </li>
+                                                    ))}
+                                                </ol>
+
                                             </div>
 
                                         </div>
-                                    }
-
-                                    <div className="test__body--question">
-                                        <div className="test__body--question-name"> {questionsCount > 0 && examSetQuestions[currentQuestion].question}</div>
-                                        <ol>
-                                            {/* {examSetQuestions[currentQuestion]?.userAnswer} */}
-                                            {examSetQuestions[currentQuestion]?.options.map((option, index) => (
-                                                <li key={index}>
-
-                                                    {examSetQuestions[currentQuestion]?.answer?.trim() === option?.trim() ? (
-                                                        <span className="bg-green-100 border-2 border-green-500 text-green-800 font-semibold px-2 py-1 rounded-md shadow-sm">
-                                                            {index + 1}) {option}
-                                                        </span>
-                                                    ) : (
-                                                        <span className="text-gray-700 px-2 py-1 hover:bg-gray-50 rounded-md transition-colors">
-                                                            {index + 1}) {option}
-                                                        </span>
-                                                    )}
-
-                                                    {examSetQuestions[currentQuestion]?.userAnswer?.trim() === examSetQuestions[currentQuestion]?.answer?.trim() && examSetQuestions[currentQuestion]?.userAnswer?.trim() === option?.trim() &&
-                                                        <span>
-                                                            ✅
-                                                        </span>}
-
-                                                    {/* {examSetQuestions[currentQuestion]?.userAnswer?.trim() == "" && examSetQuestions[currentQuestion]?.answer?.trim() === option?.trim() &&
-                                                        <span>
-                                                            ✅
-                                                        </span>} */}
-
-                                                    {examSetQuestions[currentQuestion]?.userAnswer?.trim() !== examSetQuestions[currentQuestion]?.answer?.trim() && examSetQuestions[currentQuestion]?.userAnswer?.trim() === option?.trim() &&
-                                                        <span>
-                                                            ❌
-                                                        </span>}
-
-
-                                                </li>
-                                            ))}
-                                        </ol>
-
                                     </div>
+                                    <div className="test__body--toggle">
+                                        <div className="test__body--toggle-details">
+                                            <div ><span className={toggleCss[0]}>{toggleCount.answered}</span> Answered</div>
+                                            <div><span className={toggleCss[1]}>{toggleCount.noAnswered}</span>Wrong Answered</div>
+                                            <div><span className={toggleCss[2]}>{toggleCount.noVisited}</span> No Answered</div>
+                                        </div>
+                                        <div className="test__body--toggle-category">Topic Category</div>
+                                        <div className="test__body--toggle-list">
+                                            {
+                                                questionsCount > 0 && [...Array(questionsCount)].map((_, i) =>
+                                                    <button key={i} className={getThisButtonCss(i)} onClick={() => handleSetCurrentQuestion(i)}>
+                                                        {i + 1}
+                                                    </button>
 
+                                                )
+
+                                            }
+
+
+
+
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
-                            <div className="test__body--toggle">
-                                <div className="test__body--toggle-details">
-                                    <div ><span className={toggleCss[0]}>{toggleCount.answered}</span> Answered</div>
-                                    <div><span className={toggleCss[1]}>{toggleCount.noAnswered}</span>Wrong Answered</div>
-                                    <div><span className={toggleCss[2]}>{toggleCount.noVisited}</span> No Answered</div>
-                                </div>
-                                <div className="test__body--toggle-category">Topic Category</div>
-                                <div className="test__body--toggle-list">
-                                    {
-                                        questionsCount > 0 && [...Array(questionsCount)].map((_, i) =>
-                                            <button key={i} className={getThisButtonCss(i)} onClick={() => handleSetCurrentQuestion(i)}>
-                                                {i + 1}
-                                            </button>
 
-                                        )
-
-                                    }
-
-
-
-
-                                </div>
-                            </div>
-                        </div>
-                    </div>
+                        }
+                    </div>)
 
                 }
+
 
 
             </div>

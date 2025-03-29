@@ -5,9 +5,7 @@ import axios from "axios";
 import Cookies from "js-cookie";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import Header from "@/app/Header/page";
 import "@/app/globals.css"
-import { json } from "stream/consumers";
 
 const toggleCss = ["test__body--toggle-details-answered",
     "test__body--toggle-details-no-answered",
@@ -81,7 +79,6 @@ export default function StartExamPage({ params }: { params: Promise<{ examId: nu
     const [examId, setExamId] = useState<number | null>(null);
     const [examSetId, setExamSetId] = useState<number | null>(null);
     const [examSetQuestions, setExamSetQuestions] = useState<Question[]>([]);
-    const [loading, setLoading] = useState(false);
     const [hasAccess, setHasAccess] = useState(false);
     const [questionsCount, setQuestionsCount] = useState(0);
     const [currentQuestion, setCurrentQuestion] = useState(0);
@@ -298,12 +295,13 @@ export default function StartExamPage({ params }: { params: Promise<{ examId: nu
             console.log(token);
             // Remove specific fields from each object in the array
             const cleanedData = questionsToSubmit.map(
-                ({ isAnswerReviewed, buttonCss, answer, isAnswered, isNotVisited, isReviewed, imageUrl, beforeImage, afterImage, question, multiQuestion, multiQuestionValue, options, info, id, ...rest }) => ({
-                    ...rest,         // Keep remaining properties
-                    category: cat,   // Add/modify category
-                    questionId: id   // Rename 'id' to 'questionId'
+                ({ id, ...rest }) => ({
+                    ...rest,        // Keep remaining properties
+                    category: cat,  // Add/modify category
+                    questionId: id  // Rename 'id' to 'questionId'
                 })
             );
+
 
             console.log(cleanedData);
 
@@ -321,6 +319,8 @@ export default function StartExamPage({ params }: { params: Promise<{ examId: nu
 
             toast.success("Section submitted!");
         } catch (error) {
+            console.log(error);
+
             toast.error("Submission failed");
         }
     };
@@ -369,8 +369,7 @@ export default function StartExamPage({ params }: { params: Promise<{ examId: nu
             // Fetch questions for current category
             await fetchExamSetQuestionsForCategory(key);
 
-            let totalSeconds = Number(value) * 60;
-            let finalSeconds = totalSeconds;
+            let finalSeconds = Number(value) * 60;
 
             await new Promise<void>((resolve) => {
                 currentResolver.current = () => {
@@ -455,7 +454,7 @@ export default function StartExamPage({ params }: { params: Promise<{ examId: nu
 
     const fetchExamSetQuestionsForCategory = async (category: string) => {
         try {
-            setLoading(true);
+
             const token = Cookies.get("token");
             // console.log(token);
             setCurrentQuestion(0);
@@ -478,9 +477,8 @@ export default function StartExamPage({ params }: { params: Promise<{ examId: nu
             setToggleValues((prev) => ({ ...prev, noVisited: data.length }));
 
         } catch (error) {
+            console.log(error);
             toast.error("Failed to fetch exam sets");
-        } finally {
-            setLoading(false);
         }
     };
 
@@ -498,6 +496,7 @@ export default function StartExamPage({ params }: { params: Promise<{ examId: nu
             setCategories(res.data.examCategory);
 
         } catch (error) {
+            console.log(error);
             toast.error("Failed to update exam set");
         }
     };
@@ -506,7 +505,7 @@ export default function StartExamPage({ params }: { params: Promise<{ examId: nu
 
     const fetchExamsAccess = async () => {
         try {
-            setLoading(true);
+
             const token = Cookies.get("token");
             const res = await axios.get(
                 `${process.env.NEXT_PUBLIC_SERVER_URI}/api/exam/access/exams`,
@@ -522,9 +521,8 @@ export default function StartExamPage({ params }: { params: Promise<{ examId: nu
 
 
         } catch (error) {
+            console.log(error);
             toast.error("Failed to fetch exams");
-        } finally {
-            setLoading(false);
         }
     };
 

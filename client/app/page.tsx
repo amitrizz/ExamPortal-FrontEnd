@@ -1,38 +1,23 @@
 "use client"
-import Image from "next/image";
 import Header from "./Header/page";
-import Link from "next/link";
-import { useEffect, useState } from "react";
-import { AxiosError } from 'axios';
+import { useEffect } from "react";
 import React from "react"
 import axios from "axios"
 import Cookies from 'js-cookie';
-import { ToastContainer, toast } from 'react-toastify';
+import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { useRouter } from "next/navigation"
 
-interface User {
-  firstName: string;
-  lastName: string;
-  role: string;
-  username: string;
-}
 
 export default function Home() {
   const router = useRouter();
   const [isAuthenticated, setIsAuthenticated] = React.useState(false);
-  const [user, setUser] = useState<User | null>(null);
-  const [isloading, setIsloading] = React.useState(false);
-
-
 
   const fetchUserDetails = async () => {
     try {
-      setIsloading(true);
       const token = Cookies.get("token");
-      // console.log(token);
       if (!token) {
-        return;
+        router.push("/login")
       }
 
       const res = await axios.get(
@@ -48,7 +33,7 @@ export default function Home() {
 
       console.log(res?.status);
       if (res?.status == 200) {
-        setIsAuthenticated(res.data)
+        setIsAuthenticated(true)
       }
 
       //console.log(res.data.user);
@@ -59,9 +44,7 @@ export default function Home() {
       router.push("/login")
       console.log(error);
 
-    } finally {
-      setIsloading(false);
-    }
+    } 
   };
 
   useEffect(() => {
@@ -71,7 +54,8 @@ export default function Home() {
   }, []); // Depend on blog so it runs when b
   return (
     <>
-      <Header />
+    {isAuthenticated && <Header />}
+
       <main className="bg-gray-50 min-h-screen">
         {/* Hero Section */}
         <section className="bg-gradient-to-r from-blue-400 to-indigo-200 text-white py-20">

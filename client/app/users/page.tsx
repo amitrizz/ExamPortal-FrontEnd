@@ -1,11 +1,9 @@
 "use client"
-import Link from "next/link"
 import React, { useEffect, useState } from "react"
-import { useRouter } from "next/navigation"
 import axios, { AxiosError } from "axios"
 import Cookies from 'js-cookie';
 import Header from "../Header/page"
-import { ToastContainer, toast } from 'react-toastify';
+import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
 type User = {
@@ -18,7 +16,6 @@ type User = {
 
 
 export default function MakeAppointment() {
-    const router = useRouter();
     const [users, setUsers] = useState<User[]>([]);
     const [currentPage, setCurrentPage] = useState(0);
     const [totalPages, setTotalPages] = useState(1);
@@ -56,7 +53,7 @@ export default function MakeAppointment() {
         setLoading(true);
         try {
             const token = Cookies.get("token");
-            let url = query
+            const url = query
                 ? `${process.env.NEXT_PUBLIC_SERVER_URI}/api/admin/search?name=${query}&page=${page}&size=15`
                 : `${process.env.NEXT_PUBLIC_SERVER_URI}/api/admin/all-user?page=${page}&size=15`;
 

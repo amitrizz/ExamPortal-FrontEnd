@@ -62,6 +62,7 @@ export default function GiveExamSetPage({ params }: { params: Promise<{ examId: 
             setGivenExamSets(filteredData);
             setExamSets(examSets.data);
         } catch (error) {
+            console.log(error);
             toast.error("Failed to fetch exam sets");
         } finally {
             setLoading(false);
@@ -88,6 +89,7 @@ export default function GiveExamSetPage({ params }: { params: Promise<{ examId: 
 
 
         } catch (error) {
+            console.log(error);
             toast.error("Failed to fetch exams");
         } finally {
             setLoading(false);

@@ -1,22 +1,16 @@
 "use client";
 import React, { useEffect, useState } from "react";
-import axios, { AxiosError } from "axios";
+import axios from "axios";
 import Cookies from "js-cookie";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { useRouter } from "next/navigation"
 import Header from "../Header/page";
-// import "../"
 
 interface Exam {
     examId: number;
     examName: string;
     price: number;
-}
-declare global {
-    interface Window {
-        Razorpay: any;
-    }
 }
 
 type User = {
@@ -26,6 +20,41 @@ type User = {
     userId?: string
 
 };
+declare global {
+    interface Window {
+        Razorpay: new (options: RazorpayOptions) => RazorpayInstance;
+    }
+}
+
+
+interface RazorpayInstance {
+    open: () => void;
+    close: () => void;
+    on: (event: string, callback: () => void) => void;
+}
+
+interface RazorpayOptions {
+    key: string;
+    amount: number;
+    currency: string;
+    name: string;
+    description: string;
+    order_id: string;
+    handler: (response: RazorpayResponse) => void;
+    prefill?: {
+        email?: string;
+        contact?: string;
+    };
+    theme?: {
+        color?: string;
+    };
+}
+
+interface RazorpayResponse {
+    razorpay_payment_id: string;
+    razorpay_order_id: string;
+    razorpay_signature: string;
+}
 
 export default function GiveExamsPage() {
     const router = useRouter();
@@ -35,7 +64,7 @@ export default function GiveExamsPage() {
     const [loading, setLoading] = useState(false);
     const [currentPage, setCurrentPage] = useState(0);
     const [totalPages, setTotalPages] = useState(1);
-    const [examAccessIds, setExamAccessIds] = useState<Number[]>([]);
+    const [examAccessIds, setExamAccessIds] = useState<number[]>([]);
 
     const [user, setUser] = useState<User | null>(null);
 
@@ -51,7 +80,7 @@ export default function GiveExamsPage() {
                     },
                 }
             );
-            // console.log(res);
+            console.log(res);
             setUser({
                 firstName: res.data?.firstName,
                 lastName: res.data?.lastName,
@@ -88,11 +117,15 @@ export default function GiveExamsPage() {
     const fetchExamsAccess = async () => {
         try {
             setLoading(true);
+            // console.log(`${process.env.NEXT_PUBLIC_SERVER_URI}/api/exam/access/exams`);
+
             const res = await axios.get(
                 `${process.env.NEXT_PUBLIC_SERVER_URI}/api/exam/access/exams`,
                 { headers: { Authorization: `Bearer ${token}` } }
             );
             setExamAccessIds(res.data);
+            console.log(res);
+
 
         } catch (error) {
             console.log(error);
@@ -124,58 +157,60 @@ export default function GiveExamsPage() {
     const handlePayment = async (amount: number, examId: number) => {
         setLoading(true);
         try {
-            // Step 1: Request an order from the backend
-            // console.log(token);
-
+            // Step 1: Create order
             const res = await axios.post(
                 `${process.env.NEXT_PUBLIC_SERVER_URI}/api/payment/create-order`,
-                { "amount": amount, "examId": examId, "userId": user?.userId }, // Amount in rupees
-                { headers: { Authorization: `Bearer ${token}` } } // Add authentication if needed
+                { amount, examId, userId: user?.userId },
+                { headers: { Authorization: `Bearer ${token}` } }
             );
 
-            const { orderId } = res.data;
-
-            // Step 2: Initialize Razorpay
-            const options = {
-                key: "rzp_test_9rFQmYIZaQ40mW", // Replace with your Razorpay Key
-                amount: amount * 100, // Amount in paisa
+            // Step 2: Configure Razorpay
+            const options: RazorpayOptions = {
+                key: process.env.NEXT_PUBLIC_RAZORPAY_KEY!,
+                amount: amount * 100,
                 currency: "INR",
                 name: "Test Portal",
                 description: "Test Transaction",
-                order_id: orderId, // Order ID from backend
-                handler: async (response: any) => {
-                    // Step 3: Verify payment with backend
-                    const verifyRes = await axios.post(`${process.env.NEXT_PUBLIC_SERVER_URI}/api/payment/verify-payment`, {
-                        razorpay_order_id: response.razorpay_order_id,
-                        razorpay_payment_id: response.razorpay_payment_id,
-                        razorpay_signature: response.razorpay_signature,
-                    }, { headers: { Authorization: `Bearer ${token}` } });
+                order_id: res.data.orderId,
+                handler: async (response) => {
+                    try {
+                        const verifyRes = await axios.post(
+                            `${process.env.NEXT_PUBLIC_SERVER_URI}/api/payment/verify-payment`,
+                            response,
+                            { headers: { Authorization: `Bearer ${token}` } }
+                        );
 
-                    console.log(verifyRes);
+                        if (verifyRes.data?.isValid) {
+                            alert("Success!");
+                        } else {
+                            alert("Failed!");
+                        }
 
-                    if (verifyRes.data.isValid) {
-                        alert("Payment Successful!");
                         window.location.reload();
-                    } else {
-                        alert("Payment Failed!");
+                    } catch (error) {
+                        console.error("Verification failed:", error);
+                        alert("Payment verification failed");
                     }
                 },
                 prefill: {
-                    email: "user@example.com",
-                    contact: "9999999999",
+                    email: user?.username || "user@gmail.com",
+                    contact: user?.firstName || "User"
                 },
-                theme: {
-                    color: "#3399cc",
-                },
+                theme: { color: "#3399cc" }
             };
 
-            const rzp = new window.Razorpay(options);
-            rzp.open();
+            // Step 3: Initialize Razorpay
+            if (typeof window !== "undefined") {
+                const rzp = new window.Razorpay(options);
+                rzp.open();
+            }
+
         } catch (error) {
-            console.error("Error initiating payment:", error);
-            alert("Failed to initiate payment.");
+            console.error("Payment error:", error);
+            alert("Payment initialization failed");
+        } finally {
+            setLoading(false);
         }
-        setLoading(false);
     };
 
     const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {

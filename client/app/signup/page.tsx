@@ -1,6 +1,6 @@
 "use client"
 import Link from "next/link"
-import React, { useEffect, useLayoutEffect, useState } from "react"
+import React, { useEffect } from "react"
 import { useRouter } from "next/navigation"
 import axios, { AxiosError } from "axios"
 import Cookies from 'js-cookie';
@@ -39,7 +39,6 @@ export default function SignupPage() {
             setIsloading(false);
         }
     }
-    const isAuthenticated = true;
 
     useEffect(() => {
         if (user.username.length > 0 && user.firstName.length > 0 && user.lastName.length > 0 && user.role.length > 0 && user.password.length > 0) {

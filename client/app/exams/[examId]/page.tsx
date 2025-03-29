@@ -34,9 +34,6 @@ export default function ExamSetPage({ params }: { params: Promise<{ examId: numb
         });
     }, [params]);
 
-    useEffect(() => {
-        if (examId) fetchExamSets();
-    }, [examId]);
     const fetchExamSets = async () => {
         try {
             setLoading(true);

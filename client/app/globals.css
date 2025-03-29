@@ -418,6 +418,7 @@ body {
   border-top-right-radius: 20px;
   border: 1px solid #ccc;
 }
+
 .test__body--toggle-details-current-question {
   background-color: #dd3aef;
   padding: 10px 15px;
@@ -460,17 +461,22 @@ body {
 }
 
 .test__body--toggle-details-answered-review {
-  background-color:  #7b4c80;
+  background-color: #7b4c80;
   padding: 10px 15px;
-  width: 50px; /* Match width with height */
+  width: 50px;
+  /* Match width with height */
   height: 50px;
   text-align: center;
   border-radius: 30%;
   border: 1px solid #ccc;
-  box-sizing: border-box; /* Include padding/border in dimensions */
-  background-image: url("https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSZvOy5ezvjRj9rUAs2Ixws8dgOvJ6Bw_SG2g&s"); /* Add your image path */
-  background-size: 15px 15px; /* Control image size */
-  background-position: bottom -2px  right -2px; /* Align with padding */
+  box-sizing: border-box;
+  /* Include padding/border in dimensions */
+  background-image: url("https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSZvOy5ezvjRj9rUAs2Ixws8dgOvJ6Bw_SG2g&s");
+  /* Add your image path */
+  background-size: 15px 15px;
+  /* Control image size */
+  background-position: bottom -2px right -2px;
+  /* Align with padding */
   background-repeat: no-repeat;
 }
 
@@ -539,7 +545,7 @@ body {
   background-color: #218838;
 }
 
-.user__result--page-ranks{
+.user__result--page-ranks {
   padding: 5px;
   display: grid;
   grid-template-columns: repeat(4, 1fr);
@@ -547,4 +553,39 @@ body {
   gap: 10px;
   overflow: hidden;
   overflow-x: auto;
+}
+
+
+.loading__effect {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  height: 100px;
+  /* Adjust height as needed */
+}
+
+.loading__effect--circle {
+  width: 50px;
+  height: 50px;
+  border: 5px solid rgba(0, 0, 0, 0.1);
+  border-radius: 50%;
+  border-top-color: #3498db;
+  /* Change to desired color */
+  animation: spin 1s linear infinite;
+  position: relative;
+  text-align: center;
+  font-size: 14px;
+  color: #555;
+}
+
+
+@keyframes spin {
+  0% {
+    transform: rotate(0deg);
+  }
+
+  100% {
+    transform: rotate(360deg);
+  }
 }

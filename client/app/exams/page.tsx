@@ -1,5 +1,5 @@
 "use client";
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import axios from "axios";
 import Cookies from "js-cookie";
 import { ToastContainer, toast } from "react-toastify";
@@ -32,7 +32,7 @@ export default function ExamsPage() {
     const [currentPage, setCurrentPage] = useState(0);
     const [totalPages, setTotalPages] = useState(1);
 
-    const fetchExams = async () => {
+    const fetchExams = useCallback(async () => {
         try {
             setLoading(true);
             const token = Cookies.get("token");
@@ -44,17 +44,18 @@ export default function ExamsPage() {
             setTotalPages(Math.ceil(res.data.length / 5));
         } catch (error) {
             console.log(error);
-            
+
             toast.error("Failed to fetch exams");
-            router.push("login")
+            router.replace("/login")
         } finally {
             setLoading(false);
         }
-    };
+    },[])
+
 
     useEffect(() => {
         fetchExams();
-    }, []);
+    }, [fetchExams]);
 
     const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
         setSearchQuery(e.target.value);
