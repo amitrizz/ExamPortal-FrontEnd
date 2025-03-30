@@ -266,7 +266,7 @@ export default function GiveExamsPage() {
                                             </div>
 
                                             {/* Exam Details */}
-                                            <div className="p-4 text-center">
+                                            <div className="p-4 text-center py-2">
                                                 <h4 className="font-ubuntu font-bold text-[14px] leading-[16px] text-black/75">
                                                     {exam.examName}
                                                 </h4>

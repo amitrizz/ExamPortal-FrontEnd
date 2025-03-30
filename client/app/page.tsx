@@ -56,7 +56,7 @@ export default function Home() {
     <>
     {isAuthenticated && <Header />}
 
-      <main className="bg-gray-50 min-h-screen py-16">
+      <main className="bg-gray-50 min-h-screen pt-16">
         {/* Hero Section */}
         <section className="bg-gradient-to-r from-blue-400 to-indigo-200 text-white py-20">
           <div className="max-w-6xl mx-auto px-6 text-center">
@@ -98,7 +98,7 @@ export default function Home() {
         </div>
 
         {/* Featured Exams */}
-        <section className="py-16">
+        <section className="py-16 text-black">
           <div className="max-w-6xl mx-auto px-6">
             <h2 className="text-3xl font-bold text-center mb-12">Popular Exam Categories</h2>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -136,7 +136,7 @@ export default function Home() {
         </section>
 
         {/* How It Works */}
-        <section className="py-16 bg-gray-100">
+        <section className="py-16 bg-gray-100 text-black">
           <div className="max-w-6xl mx-auto px-6">
             <h2 className="text-3xl font-bold text-center mb-12">How It Works</h2>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8">

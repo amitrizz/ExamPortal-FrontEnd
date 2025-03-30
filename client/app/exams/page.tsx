@@ -177,7 +177,7 @@ export default function ExamsPage() {
         <>
 
             <Header />
-            <div className="container mx-auto p-4  my-16">
+            <div className="container-fluid mx-auto p-4 mt-16 max-w-7xl px-4 sm:px-6 lg:px-8">
                 <ToastContainer />
                 <h1 className="text-2xl font-bold mb-4">Exams</h1>
 
