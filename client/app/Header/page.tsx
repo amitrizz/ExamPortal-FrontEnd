@@ -42,8 +42,8 @@ export default function Header() {
     };
 
     return (
-        <header className="bg-white text-black py-2 fixed w-full top-0 left-0 z-50 shadow-md px-10">
-            <div className="container mx-auto flex justify-between items-center">
+        <header className="bg-white text-black fixed w-full top-0 left-0 z-50 shadow-md">
+            <div className="container mx-auto flex justify-between items-center px-10">
                 {/* Logo Section */}
                 <Link href="/" className="text-white text-2xl font-semibold flex items-center">
                     <div className="mr-2 text-black">Exam Portal</div>
