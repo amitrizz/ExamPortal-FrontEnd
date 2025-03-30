@@ -228,7 +228,7 @@ export default function GiveExamsPage() {
         <>
 
             <Header />
-            <div className="container mx-auto p-4">
+            <div className="container mx-auto p-4  my-16">
                 <ToastContainer />
                 <h1 className="text-2xl font-bold mb-4">Exams</h1>
 
@@ -278,7 +278,7 @@ export default function GiveExamsPage() {
                                                         className="border px-4 py-2 rounded bg-blue-500 text-white hover:bg-blue-700 transition"
                                                     >
 
-                                                        View Sets
+                                                        View ExamSets
                                                     </button>
                                                 ) : (
                                                     <button

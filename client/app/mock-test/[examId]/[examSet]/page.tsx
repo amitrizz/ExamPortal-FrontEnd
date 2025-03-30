@@ -60,7 +60,7 @@ export default function StartExamPageButton({ params }: { params: Promise<{ exam
     return (
         <>
             <Header />
-            <div className="container mx-auto p-4">
+            <div className="container mx-auto p-4  my-16">
                 <ToastContainer />
                 {!loading ? (
                     <div>

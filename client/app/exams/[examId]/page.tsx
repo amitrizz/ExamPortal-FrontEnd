@@ -86,9 +86,12 @@ export default function ExamSetPage({ params }: { params: Promise<{ examId: numb
     const handleUpdateExamSet = async () => {
         try {
             const token = Cookies.get("token");
+            console.log(editExamSet?.isAttempted);
+            // console.log(editExamSet);
+            
             await axios.put(
                 `${process.env.NEXT_PUBLIC_SERVER_URI}/api/exam/set/exam-set/${editExamSet?.setId}`,
-                { examSetName: editExamSet?.examSetName, examId: editExamSet?.examId },
+                { examSetName: editExamSet?.examSetName, examId: editExamSet?.examId,isAttempted:editExamSet?.isAttempted },
                 { headers: { Authorization: `Bearer ${token}` } }
             );
             toast.success("Exam set updated successfully");
@@ -106,7 +109,7 @@ export default function ExamSetPage({ params }: { params: Promise<{ examId: numb
     return (
         <>
             <Header />
-            <div className="container mx-auto p-4">
+            <div className="container mx-auto p-4  my-16">
                 <ToastContainer />
                 <h1 className="text-2xl font-bold mb-4">Exam Sets for Exam ID: {examId}</h1>
 
@@ -169,6 +172,25 @@ export default function ExamSetPage({ params }: { params: Promise<{ examId: numb
                                     className="border px-3 py-2 w-full mb-2"
                                 />
                             </div>
+                            <div className="mb-4">
+                                <label htmlFor="isAttempted" className="block text-sm font-medium text-gray-700">
+                                    Attempted
+                                </label>
+                                <select
+                                    id="isAttempted"
+                                    value={editExamSet.isAttempted ? "Yes" : "No"}
+                                    onChange={(e) => setEditExamSet({
+                                        ...editExamSet,
+                                        isAttempted: e.target.value === "Yes" // Convert string to boolean
+                                    })}
+                                    className="border p-2 rounded w-full"
+                                >
+                                    <option value="Yes">Yes</option>
+                                    <option value="No">No</option>
+                                </select>
+                            </div>
+
+
 
                             <div className="mb-4">
                                 <button
@@ -187,8 +209,8 @@ export default function ExamSetPage({ params }: { params: Promise<{ examId: numb
                 {loading ? (
                     <p className="text-center text-xl font-semibold">Loading...</p>
                 ) : (
-                    <div>
-                        <table className="w-full border">
+                    <div className="users__table">
+                        <table className="w-full border users__table-data">
                             <thead className="bg-gray-300">
                                 <tr>
                                     <th className="border px-4 py-2">Set ID</th>

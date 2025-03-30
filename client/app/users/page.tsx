@@ -111,7 +111,7 @@ export default function MakeAppointment() {
     return (
         <>
             <Header />
-            <div className="users">
+            <div className="users my-16">
                 {/* Search Bar */}
 
                 <div className="users__container">

@@ -177,7 +177,7 @@ export default function ExamsPage() {
         <>
 
             <Header />
-            <div className="container mx-auto p-4">
+            <div className="container mx-auto p-4  my-16">
                 <ToastContainer />
                 <h1 className="text-2xl font-bold mb-4">Exams</h1>
 
@@ -192,8 +192,8 @@ export default function ExamsPage() {
                 {loading ? (
                     <p className="text-center text-xl font-semibold">Loading...</p>
                 ) : (
-                    <div>
-                        <table className="w-full border">
+                    <div className="users__table">
+                        <table className="w-full border users__table-data">
                             <thead className="bg-gray-300">
                                 <tr>
                                     <th className="border px-4 py-2">ID</th>

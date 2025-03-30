@@ -108,7 +108,7 @@ export default function ExamSetQuestionsPage({ params }: { params: Promise<{ exa
             );
             console.log(res);
             
-            toast.success("Exam set Question created successfully");
+            // toast.success("Exam set Question created successfully");
             fetchQuestions(); // Refresh the list
         } catch (error) {
             console.log(error);
@@ -126,7 +126,7 @@ export default function ExamSetQuestionsPage({ params }: { params: Promise<{ exa
                 `${process.env.NEXT_PUBLIC_SERVER_URI}/api/admin/exam/set/question/delete-exam/${questionId}`,
                 { headers: { Authorization: `Bearer ${token}` } }
             );
-            toast.success("Exam set deleted successfully");
+            // toast.success("Exam set deleted successfully");
             fetchQuestions(); // Refresh the list
         } catch (error) {
             console.log(error);
@@ -144,7 +144,7 @@ export default function ExamSetQuestionsPage({ params }: { params: Promise<{ exa
             );
             console.log(res);
             
-            toast.success("Exam set updated successfully");
+            // toast.success("Exam set updated successfully");
             setEditExamSetQuestion(null);
             fetchQuestions(); // Refresh the list
         } catch (error) {
@@ -162,7 +162,7 @@ export default function ExamSetQuestionsPage({ params }: { params: Promise<{ exa
                 `${process.env.NEXT_PUBLIC_SERVER_URI}/api/exam/get/by-id/${examId}`,
                 { headers: { Authorization: `Bearer ${token}` } }
             );
-            toast.success("Exam Categories Fetch successfully");
+            // toast.success("Exam Categories Fetch successfully");
             const keys = Object.keys(res.data.examCategory);
             console.log(keys);
             setCategories(keys);
@@ -187,7 +187,7 @@ export default function ExamSetQuestionsPage({ params }: { params: Promise<{ exa
     return (
         <>
             <Header />
-            <div className="">
+            <div className="container-fluid mx-auto p-4 my-16">
                 <ToastContainer />
                 <h1 className="text-2xl font-bold mb-4">
                     Questions for Exam Set {examSetId} (Exam ID: {examId})
@@ -457,8 +457,8 @@ export default function ExamSetQuestionsPage({ params }: { params: Promise<{ exa
                 {loading ? (
                     <p className="text-center text-xl font-semibold">Loading...</p>
                 ) : (
-                    <div className="overflow-auto">
-                        <table className="">
+                    <div className="users__table">
+                        <table className="users__table-data">
                             <thead className="bg-gray-300">
                                 <tr>
                                     <th className="border px-4 py-2">Sr No</th>

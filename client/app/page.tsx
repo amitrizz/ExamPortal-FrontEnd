@@ -56,7 +56,7 @@ export default function Home() {
     <>
     {isAuthenticated && <Header />}
 
-      <main className="bg-gray-50 min-h-screen">
+      <main className="bg-gray-50 min-h-screen py-16">
         {/* Hero Section */}
         <section className="bg-gradient-to-r from-blue-400 to-indigo-200 text-white py-20">
           <div className="max-w-6xl mx-auto px-6 text-center">

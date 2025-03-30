@@ -59,8 +59,15 @@ export default function GiveExamSetPage({ params }: { params: Promise<{ examId: 
             console.log(givenExamSets.data);
             const filteredData = givenExamSets.data.map((set: ExamSetId) => set.examSetId);
 
+            const sortedExamSet = [...examSets.data].sort((a: ExamSet, b: ExamSet) => 
+                a.examSetName.localeCompare(b.examSetName)
+            );
+            
+            const availableSortExamSet = sortedExamSet.filter((e: ExamSet) => e.isAttempted);
+
+
             setGivenExamSets(filteredData);
-            setExamSets(examSets.data);
+            setExamSets(availableSortExamSet);
         } catch (error) {
             console.log(error);
             toast.error("Failed to fetch exam sets");
@@ -112,15 +119,15 @@ export default function GiveExamSetPage({ params }: { params: Promise<{ examId: 
     return (
         <>
             <Header />
-            <div className="container mx-auto p-4">
+            <div className="container mx-auto p-4  my-16">
                 <ToastContainer />
-                <h1 className="text-2xl font-bold mb-4">Exams</h1>
+                <h1 className="text-2xl font-bold mb-4">ExamSets</h1>
 
                 {/* ✅ Search Input */}
 
                 <input
                     type="text"
-                    placeholder="Search exams..."
+                    placeholder="Search examSets..."
                     className="border px-3 py-2 w-full mb-4"
                     value={searchQuery}
                     onChange={(e) => {
@@ -161,7 +168,7 @@ export default function GiveExamSetPage({ params }: { params: Promise<{ examId: 
                                                             className="border  px-4 py-2 rounded bg-blue-500 text-white hover:bg-blue-700 transition"
                                                         >
 
-                                                            Start
+                                                            Attempt Test
                                                         </button>
                                                     ) : (
                                                         <button
@@ -181,7 +188,7 @@ export default function GiveExamSetPage({ params }: { params: Promise<{ examId: 
                                         </div>
                                     ))
                                 ) : (
-                                    <p className="text-center text-gray-500 w-full">No exams found.</p>
+                                    <p className="text-center text-gray-500 w-full">No ExamSets found.</p>
                                 )}
                             </div>
                         </div>

@@ -1,106 +1,83 @@
-"use client"
+"use client";
 import Link from "next/link";
-import { useRouter } from "next/navigation"
-import axios from "axios"
-import Cookies from 'js-cookie';
+import { useRouter } from "next/navigation";
+import axios from "axios";
+import Cookies from "js-cookie";
 import { useEffect, useState } from "react";
-import React from "react"
+import React from "react";
 import Image from "next/image";
-import { ToastContainer } from 'react-toastify';
-import 'react-toastify/dist/ReactToastify.css';
+import { ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 export default function Header() {
     const router = useRouter();
-
     const [userRole, setUserRole] = useState<string>("USER");
+    const [isMenuOpen, setIsMenuOpen] = useState(false);
 
     const fetchUserDetails = async () => {
         try {
-           
             const token = Cookies.get("token");
-            if (!token) {
-                return;
-            }
+            if (!token) return;
 
             const res = await axios.get(
                 `${process.env.NEXT_PUBLIC_SERVER_URI}/api/user`,
                 {
-                    headers: {
-                        Authorization: `Bearer ${token}`, // Add token to the Authorization header
-                    },
+                    headers: { Authorization: `Bearer ${token}` },
                 }
             );
 
-            console.log(res.data.role);
             setUserRole(res.data.role);
-
         } catch (error) {
-
             console.log(error);
-
         }
     };
 
     useEffect(() => {
-
-        fetchUserDetails(); // Call the async function
-
-    }, []); // Depend on blog so it runs when b
+        fetchUserDetails();
+    }, []);
 
     const logout = () => {
-        // Remove the token
-        Cookies.remove('token', { path: '/' });
-        router.push("/login")
-    }
+        Cookies.remove("token", { path: "/" });
+        router.push("/login");
+    };
 
     return (
-        <header className="text-white py-2 navbar">
-            <div className="container mx-auto flex justify-between items-center p-4 pl-10 pr-10">
-                {/* Logo */}
-                <div>
-                    <Link href="/" className="text-white text-2xl font-semibold flex items-center justify-center">
-                        <div className="mx-1">Exam Portal</div>
+        <header className="bg-white text-black py-2 fixed w-full top-0 left-0 z-50 shadow-md px-10">
+            <div className="container mx-auto flex justify-between items-center">
+                {/* Logo Section */}
+                <Link href="/" className="text-white text-2xl font-semibold flex items-center">
+                    <div className="mr-2 text-black">Exam Portal</div>
+                    <Image src="/logo5.png" alt="Globe icon" width={60} height={20} className="w-12" />
+                </Link>
 
-                        <Image
-                            style={{ width: "60px" }}
-                            aria-hidden
-                            src="/logo5.png"
-                            alt="Globe icon"
-                            width={60}
-                            height={20}
-                        />
+                {/* Hamburger Menu (Mobile) */}
+                <button
+                    className="md:hidden focus:outline-none"
+                    onClick={() => setIsMenuOpen(!isMenuOpen)}
+                >
+                    {isMenuOpen ? "✖" : "☰"}
+                </button>
 
-
-                    </Link>
-                </div>
-
-                {/* Authentication Links */}
-                <div>
-                    <nav className="flex space-x-6">
-
-                        {userRole == "ADMIN" && <Link href="/users" className="text-white hover:text-yellow-300">
-                            Users
-                        </Link>}
-                        {userRole == "ADMIN" && <Link href="/exams" className="text-white hover:text-yellow-300">
-                            Exams
-                        </Link>}
-
-
-                        <Link href="/mock-test" className="text-white hover:text-yellow-300">
-                            Start Test
-                        </Link>
-                        <Link href="/profile" className="text-white hover:text-yellow-300">
-                            Profile
-                        </Link>
-                        <button
-                            onClick={logout}
-                            className="px-4 text-white bg-transparent rounded hover:bg-transparent-600 focus:outline-none focus:ring-2 hover:text-yellow-300"
-                        >
-                            Logout
-                        </button>
-                    </nav>
-
-                </div>
+                {/* Navigation Links */}
+                <nav
+                    className={`absolute md:static py-4 top-16 left-0 w-full md:w-auto bg-white md:bg-transparent md:flex space-y-4 md:space-y-0 md:space-x-6 text-center md:text-left transition-all duration-300 ${isMenuOpen ? "block" : "hidden md:flex"
+                        }`}
+                >
+                    {userRole === "ADMIN" && (
+                        <>
+                            <Link href="/users" className="block md:inline-block  p-2">Users</Link>
+                            <Link href="/exams" className="block md:inline-block  p-2">Exams</Link>
+                        </>
+                    )}
+                    <Link href="/mock-test" className="block md:inline-block p-2">Start Test</Link>
+                    <Link href="/profile" className="block md:inline-block  p-2">Profile</Link>
+                    <button
+                        onClick={logout}
+                        className="px-4 py-2 bg-[#25cd71] hover:bg-blue-100 rounded text-white focus:outline-none transition"
+                    >
+                        Logout
+                    </button>
+                </nav>
             </div>
             <ToastContainer />
         </header>
